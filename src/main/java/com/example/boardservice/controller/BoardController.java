@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.boardservice.dto.BoardResponseDto;
@@ -38,13 +39,16 @@ public class BoardController {
     public ResponseEntity<BoardResponseDto> getBoard(
         @PathVariable("boardId") Long boardId
     ) {
-        BoardResponseDto boardResponseDto = boardService.getBoard2(boardId);
+        BoardResponseDto boardResponseDto = boardService.getBoard(boardId);
         return ResponseEntity.ok(boardResponseDto);
     }
     
     @GetMapping
-    public ResponseEntity<List<BoardResponseDto>> getBoards() {
-        List<BoardResponseDto> boardResponseDto = boardService.getBoards2();
+    public ResponseEntity<List<BoardResponseDto>> getBoards(
+        @RequestParam(defaultValue="0") int page,
+        @RequestParam(defaultValue="10") int size
+    ) {
+        List<BoardResponseDto> boardResponseDto = boardService.getBoards(page, size);
         return ResponseEntity.ok(boardResponseDto); 
     }
 }

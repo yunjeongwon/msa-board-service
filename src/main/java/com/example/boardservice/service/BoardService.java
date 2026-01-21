@@ -1,10 +1,11 @@
 package com.example.boardservice.service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -16,14 +17,12 @@ import com.example.boardservice.domain.User;
 import com.example.boardservice.dto.BoardResponseDto;
 import com.example.boardservice.dto.CreateBoardRequestDto;
 import com.example.boardservice.dto.UserDto;
-import com.example.boardservice.dto.UserResponseDto;
 import com.example.boardservice.event.BoardCreatedEvent;
 
 @Service
 public class BoardService {
 
     private final BoardRepositroy boardRepositroy;
-    private final UserClient userClient;
     private final PointClient pointClient;
     private final KafkaTemplate<String, String> kafkaTemplate;
 
@@ -34,7 +33,6 @@ public class BoardService {
         KafkaTemplate<String, String> kafkaTemplate
     ) {
         this.boardRepositroy = boardRepositroy;
-        this.userClient = userClient;
         this.pointClient = pointClient;
         this.kafkaTemplate = kafkaTemplate;
     }
@@ -80,55 +78,54 @@ public class BoardService {
         }
     }
 
+    // public BoardResponseDto getBoard(Long boardId) {
+    //     Board board = boardRepositroy.findById(boardId)
+    //         .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
+
+    //     Optional<UserResponseDto> optionalUserResponseDto = userClient.fetchUser(board.getUserId());
+
+    //     UserDto userDto = null;
+    //     if (optionalUserResponseDto.isPresent()) {
+    //         UserResponseDto userResponseDto = optionalUserResponseDto.get();
+    //         userDto = new UserDto(
+    //             userResponseDto.getUserId(), 
+    //             userResponseDto.getName()
+    //         );
+    //     }
+
+    //     BoardResponseDto boardResponseDto = new BoardResponseDto(boardId, board.getTitle(), board.getContent(), userDto);
+
+    //     return boardResponseDto;
+    // }
+
+    // public List<BoardResponseDto> getBoards() {
+    //     List<Board> boards = boardRepositroy.findAll();
+
+    //     List<Long> ids = boards.stream()
+    //         .map(Board::getUserId)
+    //         .distinct()
+    //         .toList();
+
+    //     List<UserResponseDto> userResponseDtos = userClient.fetchUsersByIds(ids);
+
+    //     Map<Long, UserDto> userMap = new HashMap<>();
+
+    //     userResponseDtos.forEach(dto -> {
+    //         Long userId = dto.getUserId();
+    //         userMap.put(userId, new UserDto(userId, dto.getName()));
+    //     });
+
+    //     return boards.stream()
+    //         .map(board -> new BoardResponseDto(
+    //             board.getBoardId(),
+    //             board.getTitle(),
+    //             board.getContent(),
+    //             userMap.get(board.getUserId())
+    //         ))
+    //         .toList();
+    // }
+
     public BoardResponseDto getBoard(Long boardId) {
-        Board board = boardRepositroy.findById(boardId)
-            .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
-
-        Optional<UserResponseDto> optionalUserResponseDto = userClient.fetchUser(board.getUserId());
-
-        UserDto userDto = null;
-        if (optionalUserResponseDto.isPresent()) {
-            UserResponseDto userResponseDto = optionalUserResponseDto.get();
-            userDto = new UserDto(
-                userResponseDto.getUserId(), 
-                userResponseDto.getName()
-            );
-        }
-
-        BoardResponseDto boardResponseDto = new BoardResponseDto(boardId, board.getTitle(), board.getContent(), userDto);
-
-        return boardResponseDto;
-    }
-
-    public List<BoardResponseDto> getBoards() {
-        List<Board> boards = boardRepositroy.findAll();
-
-        List<Long> ids = boards.stream()
-            .map(Board::getUserId)
-            .distinct()
-            .toList();
-
-        List<UserResponseDto> userResponseDtos = userClient.fetchUsersByIds(ids);
-
-        Map<Long, UserDto> userMap = new HashMap<>();
-
-        userResponseDtos.forEach(dto -> {
-            Long userId = dto.getUserId();
-            userMap.put(userId, new UserDto(userId, dto.getName()));
-        });
-
-        return boards.stream()
-            .map(board -> new BoardResponseDto(
-                board.getBoardId(),
-                board.getTitle(),
-                board.getContent(),
-                userMap.get(board.getUserId())
-            ))
-            .toList();
-        
-    }
-
-    public BoardResponseDto getBoard2(Long boardId) {
         Board board = this.boardRepositroy.findById(boardId).orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
 
         User user = board.getUser();
@@ -144,10 +141,13 @@ public class BoardService {
         );
     }
 
-    public List<BoardResponseDto> getBoards2() {
-        List<Board> boards = this.boardRepositroy.findAll();
+    @Cacheable(cacheNames = "getBoards", key = "'boards:page:' + #page + ':size:' + #size", cacheManager = "boardCacheManager")
+    public List<BoardResponseDto> getBoards(int page, int size) {
+        PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "boardId"));
 
-        return boards.stream()
+        Page<Board> boardPage = this.boardRepositroy.findAll(pageable);
+
+        return boardPage.getContent().stream()
             .map(board -> new BoardResponseDto(
                 board.getBoardId(),
                 board.getTitle(),

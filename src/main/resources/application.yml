@@ -24,7 +24,7 @@ client:
   user-service:
     url: http://user-service:8080
   point-service:
-    url: http://point-service:8080
+    url: http://point-service:8082
 
 logging:
   level:

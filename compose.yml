@@ -8,7 +8,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://${DB_HOST}:3306/board_db
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: http://host.docker.internal:9092
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: host.docker.internal:9092
       SPRING_DATA_REDIS_HOST: http://host.docker.internal:6379
       USER_SERVICE_URL: http://host.docker.internal:8080
       POINT_SERVICE_URL: http://host.docker.internal:8082

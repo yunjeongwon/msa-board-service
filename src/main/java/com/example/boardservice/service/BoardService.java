@@ -150,8 +150,8 @@ public class BoardService {
         return boardPage.getContent().stream()
             .map(board -> new BoardResponseDto(
                 board.getBoardId(),
-                board.getTitle() + "test",
-                board.getContent() + "test",
+                board.getTitle(),
+                board.getContent(),
                 new UserDto(
                     board.getUser().getUserId(),
                     board.getUser().getName()   

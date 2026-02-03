@@ -50,7 +50,7 @@ jobs:
           USER_SERVICE_HOST: ${{ secrets.USER_SERVICE_HOST }}
           POINT_SERVICE_HOST: ${{ secrets.POINT_SERVICE_HOST }}
         with:
-          host: ${{ secrets.EC2_HOST }}
+          host: ${{ secrets.BOARD_SERVICE_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           envs: >

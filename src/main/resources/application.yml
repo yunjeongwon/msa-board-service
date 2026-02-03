@@ -22,7 +22,7 @@ spring:
   data:
     redis:
       host: ${SPRING_DATA_REDIS_HOST}
-      port: 6379
+      port: ${SPRING_DATA_REDIS_PORT}
 
 client:
   user-service:

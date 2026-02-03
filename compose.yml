@@ -12,8 +12,3 @@ services:
       SPRING_DATA_REDIS_HOST: cache-server
       USER_SERVICE_URL: http://user-service:8080
       POINT_SERVICE_URL: http://point-service:8080
-
-networks:
-  default:
-    external: true
-    name: msa-net

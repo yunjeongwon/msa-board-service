@@ -21,8 +21,9 @@ spring:
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
   data:
     redis:
-      host: ${SPRING_DATA_REDIS_HOST}
-      port: ${SPRING_DATA_REDIS_PORT}
+      cluster:
+        nodes:
+          - ${SPRING_DATA_REDIS_CLUSTER_NODE}
 
 client:
   user-service:

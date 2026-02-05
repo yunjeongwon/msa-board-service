@@ -45,8 +45,10 @@ jobs:
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
           KAFKA_HOST: ${{ secrets.KAFKA_SERVER_HOST }}
           KAFKA_PORT: 9092
-          REDIS_HOST: ${{ secrets.CACHE_SERVER_HOST }}
-          REDIS_PORT: 6379
+          # REDIS_HOST: ${{ secrets.CACHE_SERVER_HOST }}
+          # REDIS_PORT: 6379
+          ELASTI_CACHE_URL: ${{ secrets.ELASTI_CACHE_URL }}
+          ELASTI_CACHE_PORT: 6379
           USER_SERVICE_HOST: ${{ secrets.USER_SERVICE_HOST }}
           POINT_SERVICE_HOST: ${{ secrets.POINT_SERVICE_HOST }}
         with:
@@ -61,8 +63,8 @@ jobs:
             SPRING_DATASOURCE_PASSWORD,
             KAFKA_HOST,
             KAFKA_PORT,
-            REDIS_HOST,
-            REDIS_PORT,
+            ELASTI_CACHE_HOST,
+            ELASTI_CACHE_PORT,
             USER_SERVICE_HOST,
             POINT_SERVICE_HOST
           script_stop: true

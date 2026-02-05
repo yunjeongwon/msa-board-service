@@ -24,6 +24,8 @@ spring:
       cluster:
         nodes:
           - ${SPRING_DATA_REDIS_CLUSTER_NODE}
+      ssl:
+        enabled: true
 
 client:
   user-service:

@@ -11,7 +11,7 @@ public class CpuTestController {
 
         double sum = 0;
         while (System.currentTimeMillis() < end) {
-            sum += Math.random();
+            sum += Math.sqrt(System.nanoTime());
         }
         return "ok";
     }

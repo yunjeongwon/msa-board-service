@@ -39,33 +39,29 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         env:
           SERVER_PORT: 8080
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_NAME: board_db
+          SPRING_DATASOURCE_URL: jdbc:mysql://${{ secrets.DB_HOST }}/board_db
           SPRING_DATASOURCE_USERNAME: ${{ secrets.DB_USERNAME }}
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-          KAFKA_HOST: ${{ secrets.KAFKA_SERVER_HOST }}
-          KAFKA_PORT: ${{ secrets.KAFKA_SERVER_PORT }}
+          SPRING_KAFKA_BOOTSTRAP_SERVERS: ${{ secrets.KAFKA_SERVER_HOST }}:${{ secrets.KAFKA_SERVER_PORT }}
           REDIS_HOST: ${{ secrets.CACHE_SERVER_HOST }}
           REDIS_PORT: 6379
           # ELASTI_CACHE_NODE: ${{ secrets.ELASTI_CACHE_NODE }}
-          USER_SERVICE_HOST: ${{ secrets.USER_SERVICE_HOST }}
-          POINT_SERVICE_HOST: ${{ secrets.POINT_SERVICE_HOST }}
+          USER_SERVICE_URL: http://${{ secrets.USER_SERVICE_HOST }}
+          POINT_SERVICE_URL: http://${{ secrets.POINT_SERVICE_HOST }}
         with:
           host: ${{ secrets.BOARD_SERVICE_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           envs: >
             SERVER_PORT,
-            DB_HOST,
-            DB_NAME,
+            SPRING_DATASOURCE_URL,
             SPRING_DATASOURCE_USERNAME,
             SPRING_DATASOURCE_PASSWORD,
-            KAFKA_HOST,
-            KAFKA_PORT,
+            SPRING_KAFKA_BOOTSTRAP_SERVERS,
             REDIS_HOST,
             REDIS_PORT,
-            USER_SERVICE_HOST,
-            POINT_SERVICE_HOST
+            USER_SERVICE_URL,
+            POINT_SERVICE_URL
           script_stop: true
           script: |
             cd /home/ubuntu/msa-board-service

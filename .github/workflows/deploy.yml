@@ -34,15 +34,44 @@ jobs:
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/board-system/board-service:${{ github.sha }}
             ${{ steps.login-ecr.outputs.registry }}/board-system/board-service:latest
-                    
-      - name: ssm command
+      
+      - name: s3 upload
         run: |
-          aws ssm send-command \
+          aws s3 cp deploy/ \
+          s3://bs-bucket-a/board-service/deploy/ \
+          --recursive
+
+      - name: ssm command
+        env:
+          SERVICE_NAME: board-service
+          DEPLOY_DIR: /home/ubuntu/board-service
+        run: |
+          COMMAND_ID=$(aws ssm send-command \
+            --query "Command.CommandId" \
+            --output text \
             --region ap-northeast-2 \
             --targets "Key=tag:Service,Values=board-service" \
             --document-name "AWS-RunShellScript" \
-            --parameters 'commands=["bash /home/ubuntu/msa-board-service/deploy.sh"]'
-        
+            --parameters "commands=[
+            \"mkdir -p ${DEPLOY_DIR}\",
+            \"export SERVICE_NAME=${SERVICE_NAME}\",
+            \"export IMAGE_TAG=${{ github.sha }}\",
+            \"aws s3 cp s3://bs-bucket-a/${SERVICE_NAME}/deploy/deploy.sh ${DEPLOY_DIR}/deploy.sh\",
+            \"chmod +x ${DEPLOY_DIR}/deploy.sh\",
+            \"bash ${DEPLOY_DIR}/deploy.sh\"
+            ]")
+
+          INSTANCE_ID=$(aws ec2 describe-instances \
+            --region ap-northeast-2 \
+            --filters "Name=tag:Service,Values=board-service" \
+                      "Name=instance-state-name,Values=running" \
+            --query "Reservations[0].Instances[0].InstanceId" \
+            --output text)
+
+          aws ssm wait command-executed \
+            --command-id ${COMMAND_ID} \
+            --instance-id ${INSTANCE_ID}
+
       # - name: ec2 SSH
       #   uses: appleboy/ssh-action@v1.0.3
       #   env:

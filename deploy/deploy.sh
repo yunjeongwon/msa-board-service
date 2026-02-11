@@ -1,16 +1,19 @@
 #!/bin/bash
 set -e
+set -o pipefail
 
 echo "===== deploy start ====="
+echo "IMAGE_TAG=${IMAGE_TAG}"
 
 # 1. 서비스 디렉토리 이동
-cd /home/ubuntu/msa-board-service
+mkdir -p /home/ubuntu/${SERVICE_NAME}
+cd /home/ubuntu/${SERVICE_NAME}
 
-# 2. 최신 compose / deploy 스크립트 반영
-echo "Updating source..."
-git fetch origin
-git reset --hard origin/master
-git clean -fd
+# 2. docker-compose.yml download
+echo "Download latest compose..."
+aws s3 cp \
+  s3://bs-bucket-a/${SERVICE_NAME}/deploy/docker-compose.yml \
+  docker-compose.yml
 
 # 3. SSM Parameter → .env 생성
 echo "Fetching SSM parameters..."
@@ -24,16 +27,19 @@ aws ssm get-parameters-by-path \
   --output text \
 | awk '{split($1,a,"/"); print a[length(a)]"="$2}' > .env
 
-# board-service 전용
+# point-service 전용
 aws ssm get-parameters-by-path \
   --region ap-northeast-2 \
-  --path /prod/board-system/board-service \
+  --path /prod/board-system/${SERVICE_NAME} \
   --with-decryption \
   --query "Parameters[*].[Name,Value]" \
   --output text \
 | awk '{split($1,a,"/"); print a[length(a)]"="$2}' >> .env
 
-echo ".env generated"
+if [ ! -s .env ]; then
+  echo ".env generation failed"
+  exit 1
+fi
 
 # 4. ECR 로그인
 echo "Login to ECR..."
@@ -44,7 +50,8 @@ aws ecr get-login-password --region ap-northeast-2 \
 
 # 5. 최신 이미지 pull & 재시작
 echo "Docker compose deploy..."
-docker compose pull
+docker compose pull || exit 1
 docker compose up -d
+docker ps
 
 echo "===== deploy finished ====="

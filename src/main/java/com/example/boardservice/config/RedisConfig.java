@@ -9,7 +9,7 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 
 @Configuration
 @ConditionalOnProperty(
-    name = "cache.redis.enable",
+    name = "cache.redis.enabled",
     havingValue = "true"
 )
 public class RedisConfig {

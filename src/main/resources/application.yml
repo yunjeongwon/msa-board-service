@@ -43,12 +43,14 @@ client:
 logging:
   level:
     org.springframework.cache: trace
+    io.micrometer.cloudwatch2: DEBUG
+    software.amazon.awssdk: DEBUG
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus
+        include: health,info,metrics,prometheus
 
   metrics:
     export:

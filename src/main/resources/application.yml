@@ -43,3 +43,17 @@ client:
 logging:
   level:
     org.springframework.cache: trace
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+  metrics:
+    export:
+      cloudwatch:
+        enabled: true
+        namespace: BoardSystem
+        step: 1m
+        region: ap-northeast-2

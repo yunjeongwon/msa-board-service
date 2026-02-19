@@ -43,19 +43,3 @@ client:
 logging:
   level:
     org.springframework.cache: trace
-    io.micrometer.cloudwatch2: DEBUG
-    software.amazon.awssdk: DEBUG
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics,prometheus
-
-  metrics:
-    export:
-      cloudwatch:
-        enabled: true
-        namespace: BoardSystem
-        step: 1m
-        region: ap-northeast-2

@@ -16,10 +16,6 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 @EnableCaching
-@ConditionalOnProperty(
-    name = "cache.redis.enabled",
-    havingValue = "true"
-)
 public class RedisCacheConfig {
     @Bean
     public CacheManager boardCacheManager(RedisConnectionFactory redisConnectionFactory) {

@@ -43,7 +43,3 @@ client:
 logging:
   level:
     org.springframework.cache: trace
-
-cache:
-  redis:
-    enabled: false

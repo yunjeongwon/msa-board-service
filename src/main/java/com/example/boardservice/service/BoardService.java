@@ -19,6 +19,8 @@ import com.example.boardservice.dto.CreateBoardRequestDto;
 import com.example.boardservice.dto.UserDto;
 import com.example.boardservice.event.BoardCreatedEvent;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class BoardService {
 
@@ -37,6 +39,7 @@ public class BoardService {
         this.kafkaTemplate = kafkaTemplate;
     }
 
+    @Transactional
     public void create(CreateBoardRequestDto createBoardRequestDto, Long userId) {
         boolean isPointDeducted = false;
         boolean isBoardCreated = false;
